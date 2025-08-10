@@ -1,2 +1,7 @@
 @import "tailwindcss";
 
+@layer components {
+  .pressable {
+    @apply transform-gpu transition-transform duration-75 ease-out active:scale-95 active:opacity-90;
+  }
+}

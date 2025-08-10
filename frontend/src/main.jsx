@@ -8,13 +8,16 @@ import Home from './pages/Home.jsx'
 import Login from './pages/Login.jsx'
 import Register from './pages/Register.jsx'
 import HotelDetail from './pages/HotelDetail.jsx';
+import MyBookings from './pages/MyBookings.jsx';
 
 const router = createBrowserRouter([
   { path: '/', element: <App />, children: [
     { index: true, element: <Home /> },
     { path: 'login', element: <Login /> },
     { path: 'register', element: <Register /> },
-     { path: 'hotels/:id', element: <HotelDetail /> },
+    { path: 'hotels/:id', element: <HotelDetail /> },
+    { path: 'my-bookings', element: <MyBookings /> },
+    
   ]}
 ])
 
