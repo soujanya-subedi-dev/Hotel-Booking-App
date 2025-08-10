@@ -32,7 +32,10 @@ def login():
     user = db.session.execute(db.select(User).filter_by(email=email)).scalar()
     if not user or not check_password_hash(user.password_hash, password):
         return jsonify({"error": "Invalid credentials"}), 401
-    token = create_access_token(identity={"id": user.id, "role": user.role, "email": user.email})
+    token = create_access_token(
+        identity=str(user.id),  # <-- must be a string
+        additional_claims={"role": user.role, "email": user.email}
+    )
     return jsonify({"access_token": token})
 
     
