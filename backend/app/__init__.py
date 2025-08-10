@@ -31,9 +31,11 @@ def create_app():
     from . import models  # noqa
     from .routes.health import bp as health_bp
     from .routes.auth import bp as auth_bp
+    from .routes.hotels import bp as hotels_bp
 
     app.register_blueprint(health_bp, url_prefix='/api')
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
+    app.register_blueprint(hotels_bp, url_prefix='/api')
 
     return app
 
