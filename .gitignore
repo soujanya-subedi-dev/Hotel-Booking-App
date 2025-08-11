@@ -14,8 +14,7 @@ migrations/versions/__pycache__/
 .DS_Store
 Thumbs.db
 
-*.doc
-*.docx
+
 
 **/.env
 **/.env.*

@@ -1,3 +1,16 @@
 @import "tailwindcss";
 
 
+/* Global link hover color (low specificity, safe with Tailwind) */
+:root {
+  --link-hover-color: #2563eb; /* blue-600 — tweak if you like */
+}
+
+:where(a):where(:not(.no-hover-color)) {
+  transition: color .2s ease;
+  text-decoration: none; /* keep it clean; your components can add underline */
+}
+
+:where(a):where(:not(.no-hover-color)):hover {
+  color: var(--link-hover-color);
+}

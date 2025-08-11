@@ -33,11 +33,15 @@ def create_app():
     from .routes.auth import bp as auth_bp
     from .routes.hotels import bp as hotels_bp
     from .routes.bookings import bp as bookings_bp
+    from .routes.admin import bp as admin_bp
+    from .routes.me import bp as me_bp
 
     app.register_blueprint(health_bp, url_prefix='/api')
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(hotels_bp, url_prefix='/api')
     app.register_blueprint(bookings_bp, url_prefix='/api')
+    app.register_blueprint(admin_bp, url_prefix='/api')
+    app.register_blueprint(me_bp, url_prefix='/api')
 
     return app
 

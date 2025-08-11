@@ -1,9 +1,8 @@
-import { Outlet, Link, useNavigate } from 'react-router-dom';
+import { Outlet, Link } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { isLoggedIn, getUser, logout } from './lib/auth';
 
 export default function App(){
-  const _nav = useNavigate();
   const user = getUser();
 
   return (
@@ -14,13 +13,20 @@ export default function App(){
           <Link to="/" className="text-xl font-semibold tracking-tight">Hotel Booking</Link>
           <nav className="flex items-center gap-3">
             <Link to="/" className="text-sm hover:underline">Home</Link>
-            {isLoggedIn() ? (
+
+            {isLoggedIn() && (
               <>
                 <Link to="/my-bookings" className="text-sm hover:underline">My Bookings</Link>
+                <Link to="/profile" className="text-sm hover:underline">Profile</Link>
+                {user?.role === 'admin' && (
+                  <Link to="/admin" className="text-sm hover:underline">Admin</Link>
+                )}
                 <span className="text-xs text-gray-500 hidden sm:inline">({user?.email})</span>
                 <button onClick={logout} className="text-sm px-3 py-1.5 border rounded">Logout</button>
               </>
-            ) : (
+            )}
+
+            {!isLoggedIn() && (
               <>
                 <Link to="/login" className="text-sm">Login</Link>
                 <Link to="/register" className="text-sm px-3 py-1.5 border rounded">Register</Link>
@@ -29,6 +35,7 @@ export default function App(){
           </nav>
         </div>
       </header>
+
       <main className="max-w-6xl mx-auto p-4">
         <Outlet />
       </main>
