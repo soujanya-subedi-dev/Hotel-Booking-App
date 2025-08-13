@@ -23,15 +23,12 @@ const router = createBrowserRouter([
     path: '/',
     element: <App />,
     children: [
-      { index: true, element: <Home /> },
-      { path: 'login', element: <Login /> },
-      { path: 'register', element: <Register /> },
-      { path: 'hotels/:id', element: <HotelDetail /> },
       {
-        element: <Protected />,
+        element: <AppLayout />,
         children: [
+          { index: true, element: <Home /> },
           {
-            element: <AppLayout />, // ✅ Sidebar for logged-in users
+            element: <Protected />,
             children: [
               { path: 'my-bookings', element: <MyBookings /> },
               { path: 'profile', element: <Profile /> },
@@ -39,6 +36,9 @@ const router = createBrowserRouter([
           }
         ]
       },
+      { path: 'login', element: <Login /> },
+      { path: 'register', element: <Register /> },
+      { path: 'hotels/:id', element: <HotelDetail /> },
       {
         element: <AdminOnly />,
         children: [

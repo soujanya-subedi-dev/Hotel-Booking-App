@@ -45,3 +45,22 @@ def bookings():
             rec[k] = rec[k].isoformat() if rec[k] else None
         out.append(rec)
     return jsonify(out)
+
+
+@bp.patch("/admin/hotels/<int:hotel_id>")
+@jwt_required()
+@role_required("admin")
+def update_hotel(hotel_id: int):
+    """Update hotel fields. Accepts partial data."""
+    data = request.get_json() or {}
+    fields = []
+    params = {"id": hotel_id}
+    for f in ("name", "city", "country", "address", "description", "amenities"):
+        if f in data:
+            fields.append(f"{f}=:{f}")
+            params[f] = data[f]
+    if not fields:
+        return jsonify({"error": "Nothing to update"}), 400
+    db.session.execute(text(f"UPDATE hotels SET {', '.join(fields)} WHERE id=:id"), params)
+    db.session.commit()
+    return jsonify({"ok": True})
