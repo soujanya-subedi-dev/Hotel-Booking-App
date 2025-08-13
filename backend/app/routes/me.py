@@ -1,8 +1,6 @@
-# app/routes/me.py
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from sqlalchemy import text
-from werkzeug.security import check_password_hash, generate_password_hash
 from .. import db
 
 bp = Blueprint("me", __name__)
@@ -21,7 +19,6 @@ def me_get():
     if not row:
         return jsonify({"error": "Not found"}), 404
     out = dict(row)
-    # isoformat timestamps
     out["created_at"] = out["created_at"].isoformat() if out.get("created_at") else None
     out["updated_at"] = out["updated_at"].isoformat() if out.get("updated_at") else None
     return jsonify(out)
@@ -46,6 +43,7 @@ def me_update():
 @bp.patch("/me/password")
 @jwt_required()
 def me_change_password():
+    from werkzeug.security import check_password_hash, generate_password_hash
     uid = _me_id()
     data = request.get_json() or {}
     cur = data.get("current_password") or ""
@@ -66,7 +64,6 @@ def me_change_password():
 @jwt_required()
 def me_hotel_count(hotel_id: int):
     uid = _me_id()
-    # Count times this user has booked this hotel (as guest), excluding cancelled
     n = db.session.execute(text("""
         SELECT COUNT(*)::int
         FROM bookings

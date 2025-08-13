@@ -37,34 +37,34 @@ export default function Profile(){
 
   return (
     <div className="grid md:grid-cols-2 gap-4">
-      <form onSubmit={onSave} className="bg-white p-4 border rounded space-y-3">
+      <form onSubmit={onSave} className="bg-white p-4 border rounded-xl shadow-sm space-y-3">
         <h2 className="font-semibold">Profile</h2>
         <div>
           <label className="text-xs">Full name</label>
-          <input name="full_name" defaultValue={data.full_name||''} className="border p-2 rounded w-full"/>
+          <input name="full_name" defaultValue={data.full_name||''} className="border p-2 rounded-md w-full focus:ring-2 focus:ring-black/10"/>
         </div>
         <div>
           <label className="text-xs">Email</label>
-          <input disabled defaultValue={data.email} className="border p-2 rounded w-full bg-gray-50"/>
+          <input disabled defaultValue={data.email} className="border p-2 rounded-md w-full bg-gray-50"/>
         </div>
         <div>
           <label className="text-xs">Phone</label>
-          <input name="phone" defaultValue={data.phone||''} className="border p-2 rounded w-full"/>
+          <input name="phone" defaultValue={data.phone||''} className="border p-2 rounded-md w-full"/>
         </div>
-        <button className="px-4 py-2 bg-black text-white rounded">Save</button>
+        <button className="px-4 py-2 bg-black text-white rounded-md hover:bg-black/90">Save</button>
       </form>
 
-      <form onSubmit={onPwd} className="bg-white p-4 border rounded space-y-3">
+      <form onSubmit={onPwd} className="bg-white p-4 border rounded-xl shadow-sm space-y-3">
         <h2 className="font-semibold">Change password</h2>
         <div>
           <label className="text-xs">Current password</label>
-          <input type="password" name="current_password" className="border p-2 rounded w-full" required/>
+          <input type="password" name="current_password" className="border p-2 rounded-md w-full" required/>
         </div>
         <div>
           <label className="text-xs">New password</label>
-          <input type="password" name="new_password" className="border p-2 rounded w-full" required/>
+          <input type="password" name="new_password" className="border p-2 rounded-md w-full" required/>
         </div>
-        <button className="px-4 py-2 border rounded">Update Password</button>
+        <button className="px-4 py-2 border rounded-md hover:bg-gray-50">Update Password</button>
       </form>
     </div>
   );

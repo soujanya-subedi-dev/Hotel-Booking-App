@@ -1,9 +1,7 @@
 from flask import Blueprint, jsonify
 
-bp = Blueprint('health', __name__)
+bp = Blueprint("health", __name__)
 
-@bp.get('/health')
+@bp.get("/health")
 def health():
-    return jsonify({"status": "ok"})
-
-    
+    return jsonify({"ok": True, "service": "hotel-app", "version": 1})

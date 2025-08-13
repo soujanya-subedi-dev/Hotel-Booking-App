@@ -1,17 +1,17 @@
+//main.jsx
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import './index.css'
 
+import AppLayout from './layout/AppLayout.jsx'
 import App from './App.jsx'
 import Home from './pages/Home.jsx'
 import Login from './pages/Login.jsx'
 import Register from './pages/Register.jsx'
 import HotelDetail from './pages/HotelDetail.jsx'
 import MyBookings from './pages/MyBookings.jsx'
-
-// NEW
 import Profile from './pages/Profile.jsx'
 import AdminLayout from './pages/admin/AdminLayout.jsx'
 import AdminHotels from './pages/admin/AdminHotels.jsx'
@@ -27,23 +27,24 @@ const router = createBrowserRouter([
       { path: 'login', element: <Login /> },
       { path: 'register', element: <Register /> },
       { path: 'hotels/:id', element: <HotelDetail /> },
-
-      // guarded user routes
       {
         element: <Protected />,
         children: [
-          { path: 'my-bookings', element: <MyBookings /> },
-          { path: 'profile', element: <Profile /> },
+          {
+            element: <AppLayout />, // ✅ Sidebar for logged-in users
+            children: [
+              { path: 'my-bookings', element: <MyBookings /> },
+              { path: 'profile', element: <Profile /> },
+            ]
+          }
         ]
       },
-
-      // guarded admin routes
       {
         element: <AdminOnly />,
         children: [
           {
             path: 'admin',
-            element: <AdminLayout />,
+            element: <AdminLayout />, // ✅ AdminLayout should import Sidebar
             children: [
               { index: true, element: <AdminHotels /> },
               { path: 'hotels', element: <AdminHotels /> },

@@ -1,4 +1,3 @@
-# scripts/seed.py
 import json
 from datetime import datetime, timedelta, timezone
 from sqlalchemy import text
@@ -8,6 +7,7 @@ from app.models import User
 
 app = create_app()
 
+# Hotels and images (Wikimedia/official gallery URLs)
 HOTELS = [
     {
         "name": "Hyatt Regency Kathmandu",
@@ -15,15 +15,29 @@ HOTELS = [
         "country": "Nepal",
         "address": "Boudha, Kathmandu",
         "description": "Upscale hotel near Boudhanath Stupa with spacious rooms and pool.",
-        "amenities": {"wifi": True, "pool": True, "spa": True}
+        "amenities": {"wifi": True, "pool": True, "spa": True},
+        "images": [
+            {
+                "url": "https://upload.wikimedia.org/wikipedia/commons/6/6d/Hyatt_Regency_Kathmandu_Hotel.jpg",
+                "alt": "Hyatt Regency Kathmandu exterior (Wikimedia)",
+                "primary": True,
+            }
+        ],
     },
     {
         "name": "Aloft Kathmandu Thamel",
         "city": "Kathmandu",
         "country": "Nepal",
-        "address": "Thamel, Kathmandu",
+        "address": "Chhaya Devi Complex, Thamel",
         "description": "Modern lifestyle hotel in Thamel, close to dining and nightlife.",
-        "amenities": {"wifi": True, "gym": True, "rooftop": True}
+        "amenities": {"wifi": True, "gym": True, "rooftop": True},
+        "images": [
+            {
+                "url": "https://upload.wikimedia.org/wikipedia/commons/2/2c/Thamel_Kathmandu_Nepal.jpg",
+                "alt": "Thamel street scene near Aloft (Wikimedia)",
+                "primary": True,
+            }
+        ],
     },
     {
         "name": "Temple Tree Resort & Spa",
@@ -31,7 +45,14 @@ HOTELS = [
         "country": "Nepal",
         "address": "Lakeside, Pokhara",
         "description": "Boutique resort near Phewa Lake with garden courtyards and spa.",
-        "amenities": {"wifi": True, "spa": True}
+        "amenities": {"wifi": True, "spa": True},
+        "images": [
+            {
+                "url": "https://upload.wikimedia.org/wikipedia/commons/0/0c/Phewa_Lake_of_Pokhara_city.jpg",
+                "alt": "Phewa Lake, Pokhara (Wikimedia)",
+                "primary": True,
+            }
+        ],
     },
     {
         "name": "Green Park Chitwan",
@@ -39,7 +60,14 @@ HOTELS = [
         "country": "Nepal",
         "address": "Sauraha, Chitwan",
         "description": "Jungle resort near Chitwan National Park with safari activities.",
-        "amenities": {"wifi": True, "pool": True}
+        "amenities": {"wifi": True, "pool": True},
+        "images": [
+            {
+                "url": "https://upload.wikimedia.org/wikipedia/commons/d/d3/Chitwan_National_Park_%282010%29-21.jpg",
+                "alt": "Chitwan National Park, Rapti River (Wikimedia)",
+                "primary": True,
+            }
+        ],
     },
     {
         "name": "Barahi Jungle Lodge",
@@ -47,12 +75,18 @@ HOTELS = [
         "country": "Nepal",
         "address": "Meghauli, Chitwan",
         "description": "Luxury riverside lodge offering wildlife experiences and nature views.",
-        "amenities": {"wifi": True, "pool": True, "safari": True}
+        "amenities": {"wifi": True, "pool": True, "safari": True},
+        "images": [
+            {
+                "url": "https://upload.wikimedia.org/wikipedia/commons/d/d3/Chitwan_National_Park_%282010%29-21.jpg",
+                "alt": "Chitwan National Park (near Meghauli) (Wikimedia)",
+                "primary": True,
+            }
+        ],
     },
 ]
 
 ROOM_TYPES = [
-    # (name, capacity, base_price, description, amenities)
     ("Deluxe King", 2, 120.00, "Spacious king room", {"ac": True, "tv": True}),
     ("Twin Standard", 3, 80.00, "Two single beds", {"ac": True})
 ]
@@ -72,11 +106,7 @@ def upsert_user(full_name, email, role, password):
     return u.id
 
 def get_or_create_hotel(h):
-    # Try fetch by name
-    hid = db.session.execute(
-        text("SELECT id FROM hotels WHERE name=:name"),
-        {"name": h["name"]}
-    ).scalar()
+    hid = db.session.execute(text("SELECT id FROM hotels WHERE name=:name"), {"name": h["name"]}).scalar()
     if hid:
         return hid
     row = db.session.execute(text("""
@@ -94,12 +124,24 @@ def get_or_create_hotel(h):
     db.session.commit()
     return row[0]
 
+def ensure_hotel_image(hotel_id, url, alt, primary=False):
+    row = db.session.execute(text("""
+        SELECT id FROM hotel_images WHERE hotel_id=:hid AND url=:url
+    """), {"hid": hotel_id, "url": url}).first()
+    if row:
+        return row[0]
+    row = db.session.execute(text("""
+        INSERT INTO hotel_images (hotel_id, url, alt_text, is_primary)
+        VALUES (:hid, :url, :alt, :primary)
+        RETURNING id
+    """), {"hid": hotel_id, "url": url, "alt": alt, "primary": bool(primary)}).first()
+    db.session.commit()
+    return row[0]
+
 def get_or_create_room_type(hotel_id, rt):
-    # Check by (hotel_id, name)
-    rtid = db.session.execute(
-        text("SELECT id FROM room_types WHERE hotel_id=:hid AND name=:name"),
-        {"hid": hotel_id, "name": rt[0]}
-    ).scalar()
+    rtid = db.session.execute(text("""
+        SELECT id FROM room_types WHERE hotel_id=:hid AND name=:name
+    """), {"hid": hotel_id, "name": rt[0]}).scalar()
     if rtid:
         return rtid
     row = db.session.execute(text("""
@@ -118,11 +160,9 @@ def get_or_create_room_type(hotel_id, rt):
     return row[0]
 
 def ensure_room(hotel_id, room_type_id, room_number):
-    rid = db.session.execute(
-        text("""SELECT id FROM rooms
-                WHERE hotel_id=:hid AND room_type_id=:rtid AND room_number=:num"""),
-        {"hid": hotel_id, "rtid": room_type_id, "num": str(room_number)}
-    ).scalar()
+    rid = db.session.execute(text("""
+        SELECT id FROM rooms WHERE hotel_id=:hid AND room_type_id=:rtid AND room_number=:num
+    """), {"hid": hotel_id, "rtid": room_type_id, "num": str(room_number)}).scalar()
     if rid:
         return rid
     row = db.session.execute(text("""
@@ -139,27 +179,28 @@ with app.app_context():
     user_id  = upsert_user("Test User", "user@example.com", "user", "user123")
     print("Users ready. (admin and user)")
 
-    # 2) Hotels, room types, rooms
+    # 2) Hotels, images, room types, rooms
     hotel_ids = []
     for h in HOTELS:
         hid = get_or_create_hotel(h)
         hotel_ids.append(hid)
 
-        # Two room types per hotel
-        rt_ids = []
-        for rt in ROOM_TYPES:
-            rtid = get_or_create_room_type(hid, rt)
-            rt_ids.append(rtid)
+        # images
+        for idx, img in enumerate(h.get("images", [])):
+            ensure_hotel_image(hid, img["url"], img.get("alt") or "", primary=bool(img.get("primary") and idx == 0))
 
-        # Rooms: 2 for Deluxe, 1 for Twin
+        # two room types
+        rt_ids = [get_or_create_room_type(hid, rt) for rt in ROOM_TYPES]
+
+        # rooms: 2 for Deluxe, 1 for Twin
         if len(rt_ids) >= 2:
             ensure_room(hid, rt_ids[0], "101")
             ensure_room(hid, rt_ids[0], "102")
             ensure_room(hid, rt_ids[1], "201")
 
-    print(f"Seeded {len(hotel_ids)} hotels with room types & rooms.")
+    print(f"Seeded {len(hotel_ids)} hotels with images, room types & rooms.")
 
-    # 3) Sample booking via stored procedure (first hotel, Deluxe if exists)
+    # 3) Sample booking (hotel 1, Deluxe if exists)
     if hotel_ids:
         rt_row = db.session.execute(text("""
             SELECT id FROM room_types
@@ -172,11 +213,11 @@ with app.app_context():
             check_out = now + timedelta(days=9)
 
             bid = db.session.execute(text("""
-                SELECT sp_create_booking(
-                    :booked_by, :guest_user, :guest_name,
-                    :hotel, :room_type, :cin, :cout,
-                    :guests, :total, :cur
-                );
+                INSERT INTO bookings (booked_by_user_id, guest_user_id, guest_name, hotel_id, room_type_id,
+                                      check_in, check_out, status, num_guests, total_amount, currency)
+                VALUES (:booked_by, :guest_user, :guest_name, :hotel, :room_type, :cin, :cout,
+                        'confirmed', :guests, :total, :cur)
+                RETURNING id
             """), {
                 "booked_by": admin_id,
                 "guest_user": user_id,
