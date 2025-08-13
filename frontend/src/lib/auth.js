@@ -31,3 +31,23 @@ export const logout = () => {
   localStorage.removeItem('access_token');
   window.location.assign('/');
 };
+
+
+import { useState, useEffect } from "react";
+
+export function useAuth() {
+  const [user, setUser] = useState(getUser());
+
+  useEffect(() => {
+    // Re-check token whenever page reloads or localStorage changes
+    const handleStorage = () => setUser(getUser());
+    window.addEventListener("storage", handleStorage);
+    return () => window.removeEventListener("storage", handleStorage);
+  }, []);
+
+  return {
+    user,
+    isLoggedIn: !!user,
+    logout
+  };
+}
