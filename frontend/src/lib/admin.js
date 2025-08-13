@@ -18,7 +18,7 @@ export const adminListRT     = notSupported('adminListRT');
 export const adminListRooms  = notSupported('adminListRooms');
 
 export const adminCreateHotel = notSupported('adminCreateHotel');
-export const adminUpdateHotel = notSupported('adminUpdateHotel');
+export const adminUpdateHotel = (id, data) => api.patch(`/admin/hotels/${id}`, data).then(r => r.data);
 export const adminDeleteHotel = notSupported('adminDeleteHotel');
 
 export const adminCreateRT    = notSupported('adminCreateRT');
