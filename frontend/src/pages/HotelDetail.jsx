@@ -26,6 +26,9 @@ export default function HotelDetail(){
 
   const h = data.hotel;
   const availability = data.availability || {};
+  const images = h.images?.length > 0
+    ? h.images
+    : [{ id: 'ph', url: `https://source.unsplash.com/random/800x600/?hotel&sig=${h.id}`, alt_text: h.name }];
 
   const openModal = (rt) => {
     if (!checkIn || !checkOut) { toast.error('Pick dates first'); return; }
@@ -34,17 +37,15 @@ export default function HotelDetail(){
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <h1 className="text-2xl font-bold">{h.name}</h1>
       <p className="text-gray-600">{h.city}, {h.country}</p>
 
-      {h.images?.length > 0 && (
-        <div className="flex gap-2 overflow-x-auto">
-          {h.images.map(img => (
-            <img key={img.id} src={img.url} alt={img.alt_text || h.name} className="h-40 rounded" />
-          ))}
-        </div>
-      )}
+      <div className="flex gap-2 overflow-x-auto rounded">
+        {images.map(img => (
+          <img key={img.id} src={img.url} alt={img.alt_text || h.name} className="h-40 rounded" />
+        ))}
+      </div>
 
       <div className="flex gap-2 items-end">
         <div>
